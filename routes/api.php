@@ -28,8 +28,9 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get("/{id}" , 'ProductsController@getProductById');
     });
     Route::group(["prefix" => "cart"], function (){
+        Route::post("/show" , "CartsController@show");
         Route::post("/" , "CartsController@create");
-        Route::get("/{id}" , "CartsController@create");
+        Route::post('/{id}', 'CartsController@addProduct');
     });
 
 

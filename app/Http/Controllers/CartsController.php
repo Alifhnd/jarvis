@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddProductToCartRequest;
 use App\Http\Requests\ShowCartRequest;
 use App\Http\Resources\CartItemCollection;
 use App\Model\Cart;
+use App\Model\CartItem;
+use App\Model\Product;
 use Illuminate\Http\Request;
 
 class CartsController extends Controller
@@ -17,15 +20,16 @@ class CartsController extends Controller
     public function create()
     {
         $cart = Cart::create([
-            "id" => uniqid($this->getRandomString()),
-            "key"=> uniqid($this->getRandomString())
+            "id" => uniqid($this->getRandomString(4)),
+            "key" => uniqid($this->getRandomString())
         ]);
+        dump($cart);
 
         return response()->json([
-            'Message'  => 'A new cart have been created for you!',
-            'cartToken'=> $cart->key,
-            'cartKey'  => $cart->key
-        ],201);
+            'Message' => 'A new cart have been created for you!',
+            'cartToken' => $cart->id,
+            'cartKey' => $cart->key
+        ], 201);
     }
 
 
@@ -41,16 +45,60 @@ class CartsController extends Controller
         $model = new Cart();
         $cart_key = $request->cartKey;
 
-        $cart = $model->findCartByKey($cart_key);
-        if (!$cart){
+        $model = $model->findCartByKey($cart_key);
+
+        if (!$model) {
             return response()->json([
                 'message' => 'The CarKey you provided does not match the Cart Key for this Cart.',
             ], 400);
         }
         return response()->json([
-            'cart' => $cart->id,
-            'Items in Cart' => new CartItemCollection($cart->items),
+            'cart' => $model->id,
+            'Items in Cart' => new CartItemCollection($model->items),
         ], 200);
+    }
+
+
+    /**
+     * add product to cart
+     *
+     * @param AddProductToCartRequest $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function addProduct(AddProductToCartRequest $request)
+    {
+        $cartKey = $request->cartKey;
+        $product_id = $request->product_id;
+        $quantity = $request->quantity;
+
+        $cart = Cart::where("key" , $cartKey)->first();
+        if (!$cart) {
+            return response()->json([
+                'message' => 'The CarKey you provided does not match the Cart Key for this Cart.',
+            ], 400);
+        }
+        $product = new Product();
+        $product = $product->findProductById($product_id);
+        if (!$product){
+            return response()->json([
+                'message' => 'The Product you\'re trying to add does not exist.',
+            ], 404);
+        }
+
+        $cart_item = new CartItem();
+        $cart_item = $cart_item->findCartItem($cart->getKey() , $product_id);
+
+        if ($cart_item) {
+            $cart_item->quantity = $quantity;
+            $total_price = $this->calculateTotalPrice($product_id , $quantity);
+            CartItem::where(['cart_id' => $cart->id, 'product_id' => $product_id])->update(['quantity' => $quantity , 'total_price' => $total_price]);
+        } else {
+            $total_price = $this->calculateTotalPrice($product_id , $quantity);
+            CartItem::create(['cart_id' => $cart->id, 'product_id' => $product_id, 'quantity' => $quantity , 'total_price' => $total_price]);
+        }
+
+        return response()->json(['message' => 'The Cart was updated with the given product information successfully'], 200);
     }
 
 
@@ -61,7 +109,7 @@ class CartsController extends Controller
      *
      * @return string
      */
-    private function getRandomString(int $length=5):string
+    private function getRandomString(int $length = 5): string
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $characters_length = strlen($characters);
@@ -70,5 +118,24 @@ class CartsController extends Controller
             $random_string .= $characters[rand(0, $characters_length - 1)];
         }
         return $random_string;
+    }
+
+
+    /**
+     * calculate the total price
+     *
+     * @param int $product_id
+     * @param int $quantity
+     *
+     * @return int
+     */
+    private function calculateTotalPrice(int $product_id, int $quantity):int
+    {
+        $model = new Product();
+        $product = $model->findProductById($product_id);
+        $price = $product->price;
+        $discount = $product->discount;
+
+        return ($price - $discount) * $quantity;
     }
 }

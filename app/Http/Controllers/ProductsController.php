@@ -34,7 +34,12 @@ class ProductsController extends Controller
     {
         $model = new Product();
         $product = $model->findProductById($request->id);
-        return response()->json(["title" => $product->title, "price" => $product->price, "description" => $product->description, "discount" => $product->discount], 200);
+        return response()->json([
+            "title"       => $product->title,
+            "price"       => $product->price,
+            "description" => $product->description,
+            "discount"    => $product->discount
+        ], 200);
     }
 
 
@@ -49,7 +54,7 @@ class ProductsController extends Controller
     {
         $product = Product::create($request->validated());
 //        $product = new Product($request->all())
-        if (!$product->save()) {
+        if (!$product) {
             return response()->json(["success" => false, "message" => "Sorry, product could not be added."], 500);
         }
         return response()->json(["success" => true, 'message' => "The product registered."], 201);

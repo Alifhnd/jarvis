@@ -16,7 +16,27 @@ class CreateProductRequest extends FormRequest
     {
         return [
             "title"=>"required",
-            "price"=>"required"
+            "price"=>"required|integer",
+            "quantity"=>"required|integer",
+            "discount"=>"integer",
+            "description"=>"string"
+        ];
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function messages()
+    {
+        return [
+            "title.required"=>"Please insert title",
+            "price.required"=>"Please insert price",
+            "price.integer"=>"price must be integer",
+            "quantity.required"=>"Please insert quantity",
+            "quantity.integer"=>"quantity must be integer",
+            "discount.integer"=>"discount must be integer",
+
         ];
     }
 }

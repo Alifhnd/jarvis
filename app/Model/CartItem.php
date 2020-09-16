@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
 
 /**
@@ -17,6 +18,8 @@ use Illuminate\Database\Query\Builder;
  */
 class CartItem extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'cart_id',
         'product_id',

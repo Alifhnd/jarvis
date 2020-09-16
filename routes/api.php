@@ -33,6 +33,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('/{id}', 'CartsController@addProduct');
         Route::post('/increase/{id}', 'CartsController@increase');
         Route::post('/decrease/{id}', 'CartsController@decrease');
+        Route::delete('/item/{id}', 'CartsController@removeItem');
     });
 
 

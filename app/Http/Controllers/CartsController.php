@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddProductToCartRequest;
 use App\Http\Requests\decreaseItemRequest;
 use App\Http\Requests\IncreaseItemRequest;
+use App\Http\Requests\RemoveItemRequest;
 use App\Http\Requests\ShowCartRequest;
 use App\Http\Resources\CartItemCollection;
 use App\Model\Cart;
@@ -170,6 +171,19 @@ class CartsController extends Controller
         ]);
 
         return response()->json(['message' => 'Product decreased!'],201);
+    }
+
+
+    public function removeItem(RemoveItemRequest $request)
+    {
+        /**@var Cart $cart*/
+        $cart = Cart::find($request->id);
+        if (!$cart){
+            return response()->json(['message' => 'The cart not fount.'],404);
+        }
+        $cart->items()->where('product_id' , $request->product_id)->delete();
+
+        return response()->json(['message' => 'Item deleted!'],200);
     }
 
 

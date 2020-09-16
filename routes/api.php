@@ -31,6 +31,8 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get("/show" , "CartsController@show");
         Route::post("/" , "CartsController@create");
         Route::post('/{id}', 'CartsController@addProduct');
+        Route::post('/increase/{id}', 'CartsController@increase');
+        Route::post('/decrease/{id}', 'CartsController@decrease');
     });
 
 

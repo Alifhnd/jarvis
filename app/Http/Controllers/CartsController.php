@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddProductToCartRequest;
+use App\Http\Requests\decreaseItemRequest;
+use App\Http\Requests\IncreaseItemRequest;
 use App\Http\Requests\ShowCartRequest;
 use App\Http\Resources\CartItemCollection;
 use App\Model\Cart;
@@ -99,6 +101,58 @@ class CartsController extends Controller
         }
 
         return response()->json(['message' => 'The Cart was updated with the given product information successfully'], 200);
+    }
+
+
+    /**
+     * Increase an item of cart
+     *
+     * @param IncreaseItemRequest $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function increase(IncreaseItemRequest $request)
+    {
+        $cart = Cart::find($request->id);
+        if (!$cart){
+            return response()->json(['message' => 'The cart not fount.'],404);
+        }
+        $item = new CartItem();
+        $cart_item = $item->findCartItem($cart->getKey() , $request->product_id);
+        $total_price = $this->calculateTotalPrice($request->product_id , 1);
+
+        $cart_item->quantity += 1;
+        $cart_item->total_price = $cart_item->total_price + $total_price;
+
+        $cart_item->save();
+
+        return response()->json(['message' => 'Product added!'],201);
+    }
+
+
+    /**
+     * Decrease an item of cart
+     *
+     * @param decreaseItemRequest $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function decrease(decreaseItemRequest $request)
+    {
+        $cart = Cart::find($request->id);
+        if (!$cart){
+            return response()->json(['message' => 'The cart not fount.'],404);
+        }
+        $item = new CartItem();
+        $cart_item = $item->findCartItem($cart->getKey() , $request->product_id);
+        $total_price = $this->calculateTotalPrice($request->product_id , 1);
+
+        $cart_item->quantity -= 1;
+        $cart_item->total_price = $cart_item->total_price - $total_price;
+
+        $cart_item->save();
+
+        return response()->json(['message' => 'Product decreased!'],201);
     }
 
 

@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 
 /**
  * Class CartItem
@@ -23,6 +24,7 @@ class CartItem extends Model
     ];
 
     public $incrementing = false;
+    protected $primaryKey = 'cart_id';
 
     /**
      * get cart relationship
@@ -52,7 +54,7 @@ class CartItem extends Model
      * @param string $cart_id
      * @param int $product_id
      *
-     * @return mixed
+     * @return CartItem
      */
     public function findCartItem(string $cart_id, int $product_id)
     {

@@ -90,9 +90,9 @@ class CartsController extends Controller
         $cart_item = $cart_item->findCartItem($cart->getKey() , $product_id);
 
         if ($cart_item) {
-            $cart_item->quantity = $quantity;
-            $total_price = $this->calculateTotalPrice($product_id , $quantity);
-            CartItem::where(['cart_id' => $cart->id, 'product_id' => $product_id])->update(['quantity' => $quantity , 'total_price' => $total_price]);
+            $new_quantity = $quantity + $cart_item->quantity;
+            $total_price = $this->calculateTotalPrice($product_id , $new_quantity);
+            CartItem::where(['cart_id' => $cart->id, 'product_id' => $product_id])->update(['quantity' => $new_quantity , 'total_price' => $total_price]);
         } else {
             $total_price = $this->calculateTotalPrice($product_id , $quantity);
             CartItem::create(['cart_id' => $cart->id, 'product_id' => $product_id, 'quantity' => $quantity , 'total_price' => $total_price]);

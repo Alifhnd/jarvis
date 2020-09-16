@@ -74,6 +74,7 @@ class CartsController extends Controller
         $product_id = $request->product_id;
         $quantity = $request->quantity;
 
+        /**@var Cart $cart*/
         $cart = Cart::where("key" , $cartKey)->first();
         if (!$cart) {
             return response()->json([
@@ -94,11 +95,14 @@ class CartsController extends Controller
         if ($cart_item) {
             $new_quantity = $quantity + $cart_item->quantity;
             $total_price = $this->calculateTotalPrice($product_id , $new_quantity);
-            CartItem::where(['cart_id' => $cart->id, 'product_id' => $product_id])->update(['quantity' => $new_quantity , 'total_price' => $total_price]);
+            $discount =  $total_price['discount'];
+            CartItem::where(['cart_id' => $cart->id, 'product_id' => $product_id])->update(['quantity' => $new_quantity , 'total_price' => $total_price['total_price'] ,'total_discount'=>$discount]);
         } else {
             $total_price = $this->calculateTotalPrice($product_id , $quantity);
-            CartItem::create(['cart_id' => $cart->id, 'product_id' => $product_id, 'quantity' => $quantity , 'total_price' => $total_price]);
+            CartItem::create(['cart_id' => $cart->id, 'product_id' => $product_id, 'quantity' => $quantity , 'total_price' => $total_price['total_price'] , 'total_discount'=>$total_price['discount']]);
         }
+
+        $cart->updateCartInfo();
 
         return response()->json(['message' => 'The Cart was updated with the given product information successfully'], 200);
     }
@@ -113,18 +117,25 @@ class CartsController extends Controller
      */
     public function increase(IncreaseItemRequest $request)
     {
+        /**@var Cart $cart*/
         $cart = Cart::find($request->id);
         if (!$cart){
             return response()->json(['message' => 'The cart not fount.'],404);
         }
         $item = new CartItem();
         $cart_item = $item->findCartItem($cart->getKey() , $request->product_id);
-        $total_price = $this->calculateTotalPrice($request->product_id , 1);
+        $total = $this->calculateTotalPrice($request->product_id , 1);
 
-        $cart_item->quantity += 1;
-        $cart_item->total_price = $cart_item->total_price + $total_price;
+        $quantity = $cart_item->quantity + 1;
+        $total_price = $cart_item->total_price + $total['total_price'];
+        $total_discount = $cart_item->total_discount + $total['discount'];
 
-        $cart_item->save();
+        $cart_item->where(['cart_id' => $cart->id, 'product_id' => $request->product_id])->update([
+            'quantity' => $quantity,
+            'total_price' => $total_price,
+            'total_discount'=>$total_discount
+        ]);
+        $cart->updateCartInfo();
 
         return response()->json(['message' => 'Product added!'],201);
     }
@@ -139,18 +150,24 @@ class CartsController extends Controller
      */
     public function decrease(decreaseItemRequest $request)
     {
+        /**@var Cart $cart*/
         $cart = Cart::find($request->id);
         if (!$cart){
             return response()->json(['message' => 'The cart not fount.'],404);
         }
         $item = new CartItem();
         $cart_item = $item->findCartItem($cart->getKey() , $request->product_id);
-        $total_price = $this->calculateTotalPrice($request->product_id , 1);
+        $total = $this->calculateTotalPrice($request->product_id , 1);
 
-        $cart_item->quantity -= 1;
-        $cart_item->total_price = $cart_item->total_price - $total_price;
+        $quantity = $cart_item->quantity - 1;
+        $total_price = $cart_item->total_price - $total['total_price'];
+        $total_discount = $cart_item->total_discount - $total['discount'];
 
-        $cart_item->save();
+        $cart_item->where(['cart_id' => $cart->id, 'product_id' => $request->product_id])->update([
+            'quantity' => $quantity,
+            'total_price' => $total_price,
+            'total_discount'=>$total_discount
+        ]);
 
         return response()->json(['message' => 'Product decreased!'],201);
     }
@@ -181,15 +198,16 @@ class CartsController extends Controller
      * @param int $product_id
      * @param int $quantity
      *
-     * @return int
+     * @return array
      */
-    private function calculateTotalPrice(int $product_id, int $quantity):int
+    private function calculateTotalPrice(int $product_id, int $quantity): array
     {
         $model = new Product();
         $product = $model->findProductById($product_id);
         $price = $product->price;
-        $discount = $product->discount;
+        $discount = $product->discount * $quantity;
+        $total_amount = ($price - $discount) * $quantity;
 
-        return ($price - $discount) * $quantity;
+        return ["total_price" => $total_amount , "discount" => $discount];
     }
 }

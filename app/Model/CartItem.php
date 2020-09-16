@@ -13,6 +13,7 @@ use Illuminate\Database\Query\Builder;
  * @property int product_id
  * @property int quantity
  * @property int total_price
+ * @property int total_discount
  */
 class CartItem extends Model
 {
@@ -20,7 +21,8 @@ class CartItem extends Model
         'cart_id',
         'product_id',
         'quantity',
-        'total_price'
+        'total_price',
+        'total_discount'
     ];
 
     public $incrementing = false;

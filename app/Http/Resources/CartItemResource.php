@@ -19,12 +19,13 @@ class CartItemResource extends JsonResource
         $product = Product::find($this->product_id);
 
         return [
-            'productID'  => $this->product_id,
-            'discount'   => $product->discount,
-            'price'      => $product->price,
-            'Name'       => $product->name,
-            'Quantity'   => $this->quantity,
-            'TotalPrice' => $this->total_price
+            'productID'     => $this->product_id,
+            'discount'      => $product->discount,
+            'price'         => $product->price,
+            'Name'          => $product->name,
+            'Quantity'      => $this->quantity,
+            'TotalPrice'    => $this->total_price,
+            'TotalDiscount' => $this->total_discount
         ];
     }
 }

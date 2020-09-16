@@ -29,6 +29,20 @@ class Cart extends Model
 
 
     /**
+     * update the cart info
+     *
+     * @return void
+     */
+    public function updateCartInfo()
+    {
+        $this->total_price = array_sum($this->items->pluck("total_price")->toArray());
+        $this->total_discount = array_sum($this->items->pluck("total_discount")->toArray());
+
+        $this->save();
+    }
+
+
+    /**
      * find cart by cart key
      *
      * @param string $key

@@ -37,4 +37,10 @@ Route::group(['prefix' => 'v1'], function () {
     });
 
 
+    Route::group(["prefix" => "admin" , "middleware" => ['assign.guard:admins']] , function () {
+            Route::post("/login", "Admin\AuthController@login");
+            Route::post("/register", "Admin\AuthController@register");
+            Route::post("/logout", "Admin\AuthController@logout");
+            Route::get("/me", "Admin\AuthController@me");
+    });
 });

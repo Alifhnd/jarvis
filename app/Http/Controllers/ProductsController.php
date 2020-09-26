@@ -7,6 +7,8 @@ use App\Http\Requests\ProductReadRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductsResource;
 use App\Model\Product;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 
 class ProductsController extends Controller
 {
@@ -15,11 +17,15 @@ class ProductsController extends Controller
      *
      * @param ProductReadRequest $request
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index(ProductReadRequest $request)
     {
-        return ProductsResource::collection(Product::all());
+        $locale = $request->header('locale');
+        if (!in_array($locale , Config::get('app.locales'))){
+            return response()->json('Locale Not Found.' , 400);
+        }
+        return ProductsResource::collection(Product::all()->where('locale' , $locale));
     }
 
 
@@ -36,6 +42,7 @@ class ProductsController extends Controller
         $product = $model->findProductById($request->id);
         return response()->json([
             "title"       => $product->title,
+            "locale"      => $product->locale,
             "price"       => $product->price,
             "description" => $product->description,
             "discount"    => $product->discount

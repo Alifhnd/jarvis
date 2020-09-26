@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Config;
 
 class CreateProductRequest extends FormRequest
 {
@@ -16,6 +17,7 @@ class CreateProductRequest extends FormRequest
     {
         return [
             "title"=>"required",
+            "locale"=>"required|in:".Config::get('locale'),
             "price"=>"required|integer",
             "quantity"=>"required|integer",
             "discount"=>"integer",

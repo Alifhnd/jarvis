@@ -39,7 +39,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool)env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -227,5 +227,11 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
     ],
+
+    'locales' =>
+        [
+            'fa',
+            'en',
+        ],
 
 ];

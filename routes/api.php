@@ -26,6 +26,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::put("/{id}"  , 'ProductsController@update');
         Route::get("/" , 'ProductsController@index');
         Route::get("/{id}" , 'ProductsController@getProductById');
+        Route::post("/assign" , 'ProductsController@assignProductToCategory');
     });
     Route::group(["prefix" => "cart"], function (){
         Route::get("/show" , "CartsController@show");
@@ -34,6 +35,10 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('/increase/{id}', 'CartsController@increase');
         Route::post('/decrease/{id}', 'CartsController@decrease');
         Route::delete('/item/{id}', 'CartsController@removeItem');
+    });
+    Route::group(["prefix" => "category"], function (){
+        Route::post("/" , "CategoryController@create");
+        Route::get("/" , "CategoryController@show");
     });
 
 

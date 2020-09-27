@@ -26,7 +26,8 @@ class Product extends Model
         "price",
         "quantity",
         "description",
-        "discount"
+        "discount",
+        "category_id"
     ];
 
     /**

@@ -15,13 +15,16 @@ class CreateProductRequest extends FormRequest
      */
     public function rules()
     {
+        $locales = Config::get('app.locales');
+
         return [
             "title"=>"required",
-            "locale"=>"required|in:".Config::get('locale'),
+            "locale"=>"required|in:". implode(',', $locales),
             "price"=>"required|integer",
             "quantity"=>"required|integer",
             "discount"=>"integer",
-            "description"=>"string"
+            "description"=>"string",
+            "category_id" => "required|exists:products,id"
         ];
     }
 
@@ -38,7 +41,10 @@ class CreateProductRequest extends FormRequest
             "quantity.required"=>"Please insert quantity",
             "quantity.integer"=>"quantity must be integer",
             "discount.integer"=>"discount must be integer",
-
+            "category_id.required" => "Please insert category id",
+            "category_id.exists" => "Please insert valid category",
+            "locale.required" => "Please insert locale",
+            "locale.in" => "Please insert valid locale",
         ];
     }
 }

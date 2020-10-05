@@ -16,6 +16,8 @@ class CreateCartsTable extends Migration
         Schema::create('carts', function (Blueprint $table) {
             $table->string('id');
             $table->string("key");
+            $table->integer("total_price")->default(0);
+            $table->integer("total_discount")->default(0);
             $table->softDeletes();
             $table->timestamps();
             $table->primary("id");

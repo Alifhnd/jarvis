@@ -5,6 +5,7 @@ namespace App\Model;
 use App\Http\Resources\ProductCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -21,11 +22,8 @@ class Product extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        "title",
-        "locale",
         "price",
         "quantity",
-        "description",
         "discount",
         "category_id"
     ];
@@ -40,5 +38,11 @@ class Product extends Model
     public function findProductById(int $id)
     {
         return $this->find($id);
+    }
+
+
+    public function trans()
+    {
+        return $this->hasOne(ProductTrans::class)->where('language_id' , Config::get('language_id'));
     }
 }

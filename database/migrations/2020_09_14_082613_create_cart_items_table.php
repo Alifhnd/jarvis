@@ -18,9 +18,11 @@ class CreateCartItemsTable extends Migration
             $table->unsignedInteger('product_id');
             $table->unsignedInteger('quantity');
             $table->unsignedInteger('total_price');
+            $table->integer("total_discount")->default(0);
             $table->foreign('cart_id')->references('id')->on('carts')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->primary(array('cart_id', 'product_id'));
+            $table->softDeletes();
             $table->timestamps();
         });
     }

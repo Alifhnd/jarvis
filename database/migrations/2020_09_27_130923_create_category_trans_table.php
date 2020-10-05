@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddSoftDeleteToCartItemsTable extends Migration
+class CreateCategoryTransTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,13 @@ class AddSoftDeleteToCartItemsTable extends Migration
      */
     public function up()
     {
-        Schema::table('cart_items', function (Blueprint $table) {
+        Schema::create('category_trans', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedInteger('category_id');
+            $table->unsignedInteger('language_id');
+            $table->string('title');
             $table->softDeletes();
+            $table->timestamps();
         });
     }
 
@@ -25,8 +30,6 @@ class AddSoftDeleteToCartItemsTable extends Migration
      */
     public function down()
     {
-        Schema::table('cart_items', function (Blueprint $table) {
-            $table->dropColumn(["deleted_at"]);
-        });
+        Schema::dropIfExists('category_trans');
     }
 }
